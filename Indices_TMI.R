@@ -158,6 +158,26 @@ for (i in seq(1:length(index.i)) ) {
   psr <- rbind(psr, tmp)
 }
 
+
+#max drawdown
+library("PMwR")
+library("zoo")
+max_drawdown<-function(x){
+ dd<-drawdowns(x) 
+ dd <- dd[order(dd$max, decreasing = TRUE), ]
+ dd$duration<-dd$trough-dd$peak
+ return(dd[1,])
+}
+maxdrawdown<-data.frame()
+for (i in seq(1:length(index.i)) ) {
+  index<- zoo(index.data[,paste(index.i[i], "_normed", sep = "")], as.Date(index.data$Date))
+  a<-data.frame(max_drawdown(index))
+  a$index<-index.i[i]
+  maxdrawdown<-rbind(maxdrawdown,a)
+}
+
+
+
 output <- data.frame(returns = avg_returns, 
                      vola = standarddeviation_returns,
                      skewness = skewness,
@@ -165,6 +185,9 @@ output <- data.frame(returns = avg_returns,
                      sharpe_ratio = sharpe_ratios, 
                      PSR = psr,
                      row.names = index.i)
+output$index<-row.names(output)
+output<-merge(output,maxdrawdown,by="index",all=F)
+
 xtable(output, digits = 3)
 
 
