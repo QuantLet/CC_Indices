@@ -1,4 +1,4 @@
-Name of Quantlet: 'Evaluation of Cryptocurrency Indices'
+Name of Quantlet: 'evaluation_indices'
 
 Published in: 'Indices on Cryptocurrencies: an Evaluation'
 
