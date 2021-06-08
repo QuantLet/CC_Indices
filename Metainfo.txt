@@ -1,8 +1,8 @@
 Name of Quantlet: 'evaluation_indices'
 
-Published in: 'Indices on Cryptocurrencies: an Evaluation'
+Published in: 'Indices on Cryptocurrencies an Evaluation'
 
-Description: 'This Quantlet provides the code for the paper: Indices on Cryptocurrencies - an Evaluation. It allows to visualize the indices under review, to compute higher moments and to compute several comparison measures.'
+Description: 'This Quantlet provides the code for the paper "Indices on Cryptocurrencies An Evaluation". It allows to visualize the indices under review, to compute higher moments and to compute several comparison measures.'
 
 Keywords: 'Cryptocurrency, Index, CRIX, Market Dynamics, Probabilistic Sharpe Ratio' 
 
