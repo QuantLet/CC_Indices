@@ -8,4 +8,4 @@ Keywords: 'Cryptocurrency, Index, CRIX, Market Dynamics, Probabilistic Sharpe Ra
 
 Author: 'Konstantin Häusler, Hongyu Xia'
 
-Input Data: 'data from CoinGecko on all available cryptocurrencies that has been used in this analysis can be found here: https://box.hu-berlin.de/d/f498df3c88184bec8d68/ '
+Datafile: 'data from CoinGecko on all available cryptocurrencies that has been used in this analysis can be found here: https://box.hu-berlin.de/d/f498df3c88184bec8d68/ '
