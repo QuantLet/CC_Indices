@@ -4,24 +4,25 @@
 
 #authors: Konstantin Häusler, Hongyu Xia
 
-#load packages
-library(PMwR)
-library(dplyr)
-library(lubridate)
-library(zoo)
-library(quantmod)
-library(moments)
-library(corrplot)
-library(xtable)
-library(vioplot)
-library(ggplot2)
-library(viridis)
-library(RColorBrewer)
+# List of libraries to be used
+lib <- list("PMwR", "dplyr", "lubridate", "zoo", "quantmod", 
+            "moments", "EnvStats", "corrplot", "xtable", 
+            "vioplot", "ggplot2", "viridis", "RColorBrewer")
+
+# Installing or calling the libraries
+invisible(lapply(lib, function(x){
+  result <- library(x, logical.return=T, character.only =T)
+  if(result == F) install.packages(x)
+  library(x, character.only =T)
+  print(paste0(x, " loaded"))
+}))
+
+
 display.brewer.all()
 colors <- brewer.pal(10, "Paired")
 
 # set working directory
-setwd("your directory")
+setwd("/Users/konstantin/Desktop/dateien/IRTG 1792/CC_Index_Comparison_Hae_Xia/CC_Indices_Code/CC_Indices")
 
 #load cryptocurrency (CC) data (source: CoinGecko)
 #2018-2020
@@ -115,11 +116,14 @@ cci30$Close <- as.numeric(as.character(cci30$Close))
 names(cci30) <- c("Date", "CCI30")
 cci30 <- cci30[order(cci30$Date),]
 
-crix <- read.csv("http://data.thecrix.de/data/crix.csv", header=TRUE)
-names(crix) <- c("Date", "CRIX")
-crix$Date <- as.Date(crix$Date)
 
-f5 <- read.csv2("/Users/konstantin/Desktop/dateien/IRTG 1792/CoinGecko/updated index data/F5.csv")
+#newcrix
+crix <- read.csv("new_crix.csv")
+names(crix) <- c("Date", "CRIX")
+crix$Date <- as.Date(newcrix$Date)
+
+
+f5 <- read.csv2("F5.csv")
 f5$Date <- as.Date(f5$Date, format="%Y-%m-%d")
 f5$F5.Crypto.Index <- as.numeric(as.character(f5$F5.Crypto.Index))
 names(f5) <- c("Date", "F5")
@@ -144,7 +148,7 @@ for (i in index.i) {
 }
 
 ##################################################
-###descriptive statistics and Sharpe ratios#######
+###descriptive statistics and Ratios#######
 ##################################################
 
 #compute returns
@@ -184,13 +188,63 @@ for (i in seq(1:length(index.i)) ) {
   maxdrawdown<-rbind(maxdrawdown,a)
 }
 
+# Sortino Ratio
+sor <- function(returns, rf){
+  returns <- na.omit(returns)
+  N <- length(returns)
+  
+  #downside deviation
+  dd <- sqrt((1/N)*sum((pmin(returns-0, 0))^2))
+  
+  #sortino ratio
+  s <- (mean(returns, na.rm = T) - rf) / dd
+  print(s)
+}
+sor(returns= returns, rf=0)
+
+sor.df <- NULL
+for (i in index.i) {
+  name <- paste(i, "_return", sep = "")
+  sor.i <- sor(returns = index.data[,name], rf=0)
+  sor.df <- rbind(sor.df, sor.i)
+  #sor.df[paste(i,"_SoR", sep="")] <- sor.i
+}
+
+# Omega Ratio
+theta <- 0
+omega.ratio <- function(returns, theta){
+  returns <- as.numeric(na.omit(returns))
+  #returns <- as.numeric(na.omit(index.data[,name]))
+  q <- qemp(p = seq(0, 1, len = 1000), obs = returns) 
+  denominator <-  integrate(function(q){pemp(q, obs=returns)}, lower = min(q)-1, #-Inf  min(q)-1
+                            upper = theta, subdivisions=2000)$value     
+  numerator <- integrate(function(q){1-pemp(q, obs=returns)}, lower= theta, 
+                         upper = max(q)+1, subdivisions=2000)$value     #Inf
+  omega <- numerator / denominator
+  return(omega)
+}
+omega.ratio(returns = na.omit(index.data[,name][,1]), theta = 0)
+
+omega.df <- NULL
+for (i in index.i) {
+  name <- paste(i, "_return", sep = "")
+  print(name)
+  omega.i <- omega.ratio(returns = index.data[,name],theta = 0)
+  print(omega.i)
+  omega.df <- rbind(omega.df, omega.i)
+  #omega.df[paste(i,"_Omega", sep="")] <- omega.i
+}
+
+# summary as latex table
 output <- data.frame(returns = avg_returns.p, 
                      sd = standarddeviation_returns,
                      skewness = skewness,
                      kurtosis = kurtosis,
-                     sharpe_ratio = sharpe_ratios, 
+                     SR = sharpe_ratios, 
                      PSR = psr,
                      MMD = maxdrawdown$max,
+                     Omega = omega.df,
+                     SoR = sor.df,
                      row.names = index.i)
 xtable(output, digits = 3)
 
