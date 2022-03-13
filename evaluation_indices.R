@@ -120,7 +120,7 @@ cci30 <- cci30[order(cci30$Date),]
 #newcrix
 crix <- read.csv("new_crix.csv")
 names(crix) <- c("Date", "CRIX")
-crix$Date <- as.Date(newcrix$Date)
+crix$Date <- as.Date(crix$Date)
 
 
 f5 <- read.csv2("F5.csv")
@@ -200,7 +200,6 @@ sor <- function(returns, rf){
   s <- (mean(returns, na.rm = T) - rf) / dd
   print(s)
 }
-sor(returns= returns, rf=0)
 
 sor.df <- NULL
 for (i in index.i) {
@@ -209,6 +208,8 @@ for (i in index.i) {
   sor.df <- rbind(sor.df, sor.i)
   #sor.df[paste(i,"_SoR", sep="")] <- sor.i
 }
+
+sor(returns= index.data[,name], rf=0)
 
 # Omega Ratio
 theta <- 0
@@ -304,7 +305,8 @@ vioplot(cor.vec.matrix[2:length(names(cor.vec.matrix))], col=1:length(names(cor.
 
 #market cap of Bitcoin
 bitcoin <- data.frame(date = CCs$Datetime[CCs$Id=="bitcoin"], MC.bitcoin = CCs$market_caps[CCs$Id=="bitcoin"])
-CCs$market_caps[CCs$Id=="bitcoin", c("Datetime")]
+Date = which(CCs$Id=="bitcoin")
+cbind(CCs$market_caps[CCs$Id=="bitcoin"],CCs$Datetime[Date])
 
 #market cap of top 10 CCs
 top10 <- aggregate(CCs$market_caps, by= list(CCs$Datetime), FUN = function(x){sum(sort(x, decreasing = TRUE)[1:10])})
